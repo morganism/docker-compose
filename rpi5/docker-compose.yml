@@ -1,0 +1,58 @@
+services:
+  rpi5-qemu:
+    image: debian:bookworm-slim
+    container_name: rpi5-qemu
+    volumes:
+      - ./boot:/boot
+      - ./sdcard:/sdcard
+      - ./shared:/shared
+    ports:
+      - "2222:22"       # SSH into the Pi
+      - "5900:5900"     # VNC
+      - "4444:4444"     # GDB
+    devices:
+      - /dev/kvm:/dev/kvm   # hardware acceleration if available
+    cap_add:
+      - NET_ADMIN
+    stdin_open: true
+    tty: true
+    command: >
+      bash -c "apt-get update && apt-get install -y
+        qemu-system-aarch64
+        qemu-utils
+        ovmf
+        curl
+        openssh-client &&
+      qemu-system-aarch64
+        -machine virt
+        -cpu cortex-a76
+        -smp 4
+        -m 4G
+        -bios /usr/share/qemu/edk2-aarch64-code.fd
+        -drive file=/sdcard/rpi-os.img,if=virtio,format=raw
+        -drive file=/sdcard/data.qcow2,if=virtio,format=qcow2
+        -netdev user,id=net0,hostfwd=tcp::22-:22
+        -device virtio-net-pci,netdev=net0
+        -device virtio-gpu-pci
+        -display vnc=0.0.0.0:0
+        -serial mon:stdio
+        -nographic"
+
+  rpi5-setup:
+    image: debian:bookworm-slim
+    container_name: rpi5-setup
+    volumes:
+      - ./boot:/boot
+      - ./sdcard:/sdcard
+      - ./ssh-keys:/ssh-keys
+    profiles:
+      - setup
+    command: >
+      bash -c "apt-get update && apt-get install -y
+        curl wget qemu-utils xz-utils &&
+      echo 'Download Raspberry Pi OS image:' &&
+      echo 'Place rpi-os.img in ./sdcard/' &&
+      echo 'Or run: make download-image'"
+
+volumes:
+  rpi5-cache:
