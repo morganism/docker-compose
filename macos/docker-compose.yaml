@@ -1,0 +1,20 @@
+services:
+  macos:
+    image: dockurr/macos
+    container_name: macos
+    environment:
+      VERSION: "14"
+      KVM: "N"  # Disable KVM acceleration
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 8006:8006
+      - 5909:5909/tcp
+      - 5909:5909/udp
+    volumes:
+      - ./macos:/storage
+    restart: always
+    stop_grace_period: 2m
