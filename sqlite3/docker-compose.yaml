@@ -1,0 +1,10 @@
+services:
+  sqlite:
+    image: nouchka/sqlite3:latest   # dedicated sqlite3 image
+    container_name: sqlite3
+    volumes:
+      - ./data:/root/db
+    working_dir: /root/db
+    command: sleep infinity
+    stdin_open: true
+    tty: true

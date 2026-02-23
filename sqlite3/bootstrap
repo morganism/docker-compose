@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+: <<DOCXX
+Add description
+Author: morgan@morganism.dev
+Date: Sun 22 Feb 2026 01:51:27 GMT
+DOCXX
+
+[[ -f alias-sqlite3.sh ]] && source alias-sqlite3.sh
+
