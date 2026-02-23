@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+: <<DOCXX
+Add description
+Author: morgan@morganism.dev
+Date: Sun 22 Feb 2026 00:24:44 GMT
+DOCXX
+
+THIS=$(realpath $BASH_SOURCE)
+THIS_DIR=$(dirname $THIS)
+echo $MYDIR
+
+title="Docker Containers"
+prompt="Select container(s): "
+DIRS_LIST=(`find $THIS_DIR -type d -maxdepth 1 -exec basename {} \; | grep -v '^.$'`)
+
+while DIRS=$(zenity --title="$title" --text="$prompt" --list --multiple --height=600 \
+                   --column="containers :" "${DIRS_LIST[@]}" --timeout=30  --separator=' '  2>/dev/null)
+do
+    echo $DIRS
+    [[ -n $DIRS ]] && break 
+done
+
+for d in $DIRS; do
+  cd "$THIS_DIR/$DIRS"
+  `docker compose up -d`
+  [[ -f bootstrap ]] && source bootstrap
+  cd $THIS_DIR
+done
+
