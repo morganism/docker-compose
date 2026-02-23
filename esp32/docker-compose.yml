@@ -1,0 +1,37 @@
+services:
+  esp32-dev:
+    image: espressif/idf:latest
+    container_name: esp32-dev
+    volumes:
+      - ./project:/project
+      - esp32-cache:/root/.espressif
+    working_dir: /project
+    stdin_open: true
+    tty: true
+    environment:
+      - IDF_PATH=/opt/esp/idf
+    command: /bin/bash
+
+  esp32-qemu:
+    image: espressif/idf:latest
+    container_name: esp32-qemu
+    volumes:
+      - ./project:/project
+      - ./firmware:/firmware
+      - esp32-cache:/root/.espressif
+    working_dir: /project
+    stdin_open: true
+    tty: true
+    ports:
+      - "5555:5555"
+      - "4444:4444"
+    environment:
+      - IDF_PATH=/opt/esp/idf
+    command: >
+      bash -c "apt-get update && apt-get install -y qemu-system-xtensa &&
+      qemu-system-xtensa -nographic -machine esp32
+      -drive file=/firmware/flash_image.bin,if=mtd,format=raw
+      -gdb tcp::5555 -S"
+
+volumes:
+  esp32-cache:
