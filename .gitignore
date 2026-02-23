@@ -11,6 +11,8 @@
 /tmp/
 containers*
 data/
+.env
+.password*
 
 # Used by dotenv library to load environment variables.
 # .env
